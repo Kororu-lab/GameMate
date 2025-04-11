@@ -17,14 +17,14 @@ struct SpinWheelView: View {
     
     var body: some View {
         VStack {
-            Text("Spin Wheel")
+            Text("Spin Wheel".localized)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
             
             // Section count stepper
             HStack {
-                Text("Number of sections: \(sectionCount)")
+                Text("Number of sections: \(sectionCount)".localized)
                 Spacer()
                 Stepper("", value: $sectionCount, in: 2...12)
                     .onChange(of: sectionCount) { _, newValue in
@@ -36,7 +36,7 @@ struct SpinWheelView: View {
             Button(action: {
                 isEditingSegments = true
             }) {
-                Text("Edit Wheel")
+                Text("Edit Wheel".localized)
                     .font(.headline)
                     .foregroundColor(.blue)
             }
@@ -90,7 +90,7 @@ struct SpinWheelView: View {
             Spacer()
             
             if let selectedSection = selectedSection {
-                Text("Result: \(selectedSection.text)")
+                Text("Result: \(selectedSection.text)".localized)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()
@@ -106,12 +106,8 @@ struct SpinWheelView: View {
                 .padding(.horizontal)
             }
             
-            Button(action: {
-                if !isSpinning {
-                    spinWheel()
-                }
-            }) {
-                Text("Spin")
+            Button(action: spinWheel) {
+                Text("Spin Wheel".localized)
                     .font(.title2)
                     .foregroundColor(.white)
                     .padding()
@@ -123,7 +119,7 @@ struct SpinWheelView: View {
             .padding()
             
             NavigationLink(destination: HistoryView(selectedFilter: .wheel)) {
-                Text("View History")
+                Text("View History".localized)
                     .font(.headline)
                     .foregroundColor(.blue)
             }
@@ -206,7 +202,7 @@ struct SpinWheelView: View {
             // Log the result
             appModel.addLogEntry(
                 type: .wheel,
-                result: "Wheel landed on: \(sections[validSectionIndex].text)"
+                result: String(format: "Wheel landed on: %@".localized, sections[validSectionIndex].text)
             )
             
             isSpinning = false
@@ -294,7 +290,7 @@ struct EditSegmentsView: View {
         NavigationView {
             List {
                 ForEach(0..<segments.count, id: \.self) { index in
-                    TextField("Section \(index + 1)", text: $segments[index])
+                    TextField("Section \(index + 1)".localized, text: $segments[index])
                         .padding(.vertical, 8)
                 }
                 .onDelete { indexSet in
@@ -309,18 +305,18 @@ struct EditSegmentsView: View {
                 }) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
-                        Text("Add Section")
+                        Text("Add Section".localized)
                     }
                     .foregroundColor(.blue)
                     .padding(.vertical, 8)
                 }
             }
-            .navigationTitle("Edit Wheel Sections")
+            .navigationTitle("Edit Wheel Sections".localized)
             .navigationBarItems(
-                leading: Button("Cancel") {
+                leading: Button("Cancel".localized) {
                     dismiss()
                 },
-                trailing: Button("Done") {
+                trailing: Button("Done".localized) {
                     dismiss()
                 }
                 .fontWeight(.bold)

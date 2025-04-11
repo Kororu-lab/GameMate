@@ -9,7 +9,7 @@ struct ArrowSpinnerView: View {
     
     var body: some View {
         VStack {
-            Text("Arrow Spinner")
+            Text("Arrow Spinner".localized)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
@@ -44,7 +44,7 @@ struct ArrowSpinnerView: View {
             Spacer()
             
             if !isSpinning && selectedPosition != nil {
-                Text("Result: \(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))°")
+                Text("Result: \(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))°".localized)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()
@@ -55,7 +55,7 @@ struct ArrowSpinnerView: View {
                     spinArrow()
                 }
             }) {
-                Text("Spin")
+                Text("Spin".localized)
                     .font(.title2)
                     .foregroundColor(.white)
                     .padding()
@@ -67,7 +67,7 @@ struct ArrowSpinnerView: View {
             .padding()
             
             NavigationLink(destination: HistoryView(selectedFilter: .arrow)) {
-                Text("View History")
+                Text("View History".localized)
                     .font(.headline)
                     .foregroundColor(.blue)
             }
@@ -103,7 +103,7 @@ struct ArrowSpinnerView: View {
             // Log the result
             appModel.addLogEntry(
                 type: .arrow,
-                result: "Arrow pointed to \(normalizedAngle)°"
+                result: String(format: "Arrow pointed to %@°".localized, String(normalizedAngle))
             )
         }
     }

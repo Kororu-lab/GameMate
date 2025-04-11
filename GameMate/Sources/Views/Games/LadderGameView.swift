@@ -20,14 +20,14 @@ struct LadderGameView: View {
     
     var body: some View {
         VStack {
-            Text("Ladder Game")
+            Text("Ladder Game".localized)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
             
             // Ladder count control
             HStack {
-                Text("Number of ladders: \(ladderCount)")
+                Text("Number of ladders: \(ladderCount)".localized)
                 Spacer()
                 Stepper("", value: $ladderCount, in: 2...6)
                     .onChange(of: ladderCount) { _, _ in
@@ -72,7 +72,7 @@ struct LadderGameView: View {
             
             // Show result
             if showResult, let selected = selectedLadder {
-                Text("Result: \(selected + 1)")
+                Text("Result: \(selected + 1)".localized)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()
@@ -85,7 +85,7 @@ struct LadderGameView: View {
                         resetGame(generateNewLines: false)
                     }
                 }) {
-                    Text("Reset")
+                    Text("Reset".localized)
                         .font(.title2)
                         .foregroundColor(.white)
                         .padding()
@@ -100,7 +100,7 @@ struct LadderGameView: View {
                         resetGame(generateNewLines: true)
                     }
                 }) {
-                    Text("Shuffle")
+                    Text("Shuffle".localized)
                         .font(.title2)
                         .foregroundColor(.white)
                         .padding()
@@ -112,7 +112,7 @@ struct LadderGameView: View {
             .padding()
             
             NavigationLink(destination: HistoryView(selectedFilter: nil)) {
-                Text("View History")
+                Text("View History".localized)
                     .font(.headline)
                     .foregroundColor(.blue)
             }

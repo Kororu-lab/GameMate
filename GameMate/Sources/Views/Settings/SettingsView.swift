@@ -2,19 +2,22 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var appModel: AppModel
+    @ObservedObject private var localeManager = LocaleManager.shared
     @State private var selectedTab = 0
+    @State private var showLanguageSettings = false
     
     var body: some View {
         VStack {
-            Text("Settings")
+            Text("Settings".localized)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
             
             Picker("", selection: $selectedTab) {
-                Text("Games").tag(0)
-                Text("History").tag(1)
-                Text("Appearance").tag(2)
+                Text("Games".localized).tag(0)
+                Text("History".localized).tag(1)
+                Text("Appearance".localized).tag(2)
+                Text("Language".localized).tag(3)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
@@ -25,12 +28,21 @@ struct SettingsView: View {
             } else if selectedTab == 1 {
                 HistoryView()
                     .padding(.top)
-            } else {
+            } else if selectedTab == 2 {
                 AppearanceSettingsView()
+                    .padding()
+            } else {
+                LanguageSettingsView()
                     .padding()
             }
             
             Spacer()
+        }
+        .id(localeManager.appLanguage) // Force view refresh when language changes
+        .environment(\.locale, localeManager.appLocale)
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LanguageChanged"))) { _ in
+            // Force UI update when language changes
+            selectedTab = selectedTab // This forces a state change
         }
     }
 }
@@ -40,10 +52,10 @@ struct GameSelectionView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Select Games (max \(appModel.maxVisibleGames))")
+            Text("Select Games (max \(appModel.maxVisibleGames))".localized)
                 .font(.headline)
             
-            Text("Choose which games appear in the tab bar")
+            Text("Choose which games appear in the tab bar".localized)
                 .font(.subheadline)
                 .foregroundColor(.gray)
             
@@ -53,7 +65,7 @@ struct GameSelectionView: View {
                         Image(systemName: game.systemImage)
                             .foregroundColor(gameColor(for: game))
                         
-                        Text(game.rawValue)
+                        Text(game.rawValue.localized)
                         
                         Spacer()
                         
@@ -89,11 +101,11 @@ struct AppearanceSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Group {
-                Text("Dice Settings")
+                Text("Dice Settings".localized)
                     .font(.headline)
                 
                 ColorSelection(
-                    title: "Dice Color",
+                    title: "Dice Color".localized,
                     useSameColor: $appModel.useSameColorForDice,
                     mainColor: $appModel.diceColor,
                     colorArray: $appModel.diceColors
@@ -103,11 +115,11 @@ struct AppearanceSettingsView: View {
             Divider()
             
             Group {
-                Text("Coin Settings")
+                Text("Coin Settings".localized)
                     .font(.headline)
                 
                 ColorSelection(
-                    title: "Coin Color",
+                    title: "Coin Color".localized,
                     useSameColor: $appModel.useSameColorForCoins,
                     mainColor: $appModel.coinColor,
                     colorArray: $appModel.coinColors
@@ -125,13 +137,13 @@ struct ColorSelection: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Toggle("Use same color for all", isOn: $useSameColor)
+            Toggle("Use same color for all".localized, isOn: $useSameColor)
                 .padding(.vertical, 5)
             
             if useSameColor {
                 ColorPicker(title, selection: $mainColor)
             } else {
-                Text("Multiple colors will be used")
+                Text("Multiple colors will be used".localized)
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }

@@ -12,13 +12,13 @@ struct CoinView: View {
     
     var body: some View {
         VStack {
-            Text("Coin Toss")
+            Text("Coin Toss".localized)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
             
             HStack {
-                Text("Number of coins: \(coinCount)")
+                Text("Number of coins: \(coinCount)".localized)
                 Spacer()
                 Stepper("", value: $coinCount, in: 1...6, step: 1)
                     .onChange(of: coinCount) { _, newValue in
@@ -93,14 +93,14 @@ struct CoinView: View {
                 let headsCount = coinResults.filter { $0 }.count
                 let tailsCount = coinResults.count - headsCount
                 
-                Text("Results: \(headsCount) Heads, \(tailsCount) Tails")
+                Text("Results: \(headsCount) Heads, \(tailsCount) Tails".localized)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()
             }
             
             Button(action: tossCoin) {
-                Text("Toss Coins")
+                Text("Toss Coins".localized)
                     .font(.title2)
                     .foregroundColor(.white)
                     .padding()
@@ -112,7 +112,7 @@ struct CoinView: View {
             .padding()
             
             NavigationLink(destination: HistoryView(selectedFilter: .coin)) {
-                Text("View History")
+                Text("View History".localized)
                     .font(.headline)
                     .foregroundColor(.blue)
             }
@@ -306,41 +306,43 @@ struct CoinFace: View {
     var isHeads: Bool
     
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.clear)
-            
-            if isHeads {
-                Text("H")
-                    .font(.system(size: 40, weight: .bold))
-                    .foregroundColor(Color(red: 0.7, green: 0.5, blue: 0.1))
+        GeometryReader { geometry in
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.2))
                 
-                // Small decorative circles around the edge
-                ForEach(0..<12) { index in
-                    let angle = Double(index) * (360.0 / 12.0)
-                    Circle()
-                        .fill(Color(red: 0.7, green: 0.5, blue: 0.1))
-                        .frame(width: 8, height: 8)
-                        .offset(
-                            x: cos(angle * .pi / 180) * 40,
-                            y: sin(angle * .pi / 180) * 40
-                        )
-                }
-            } else {
-                Text("T")
-                    .font(.system(size: 40, weight: .bold))
-                    .foregroundColor(Color(red: 0.7, green: 0.5, blue: 0.1))
-                
-                // Small decorative dots in a different pattern
-                ForEach(0..<8) { index in
-                    let angle = Double(index) * (360.0 / 8.0)
-                    Circle()
-                        .fill(Color(red: 0.7, green: 0.5, blue: 0.1))
-                        .frame(width: 8, height: 8)
-                        .offset(
-                            x: cos(angle * .pi / 180) * 35,
-                            y: sin(angle * .pi / 180) * 35
-                        )
+                if isHeads {
+                    Text("H".localized)
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(Color(red: 0.7, green: 0.5, blue: 0.1))
+                    
+                    // Small decorative circles around the edge
+                    ForEach(0..<12) { index in
+                        let angle = Double(index) * (360.0 / 12.0)
+                        Circle()
+                            .fill(Color(red: 0.7, green: 0.5, blue: 0.1))
+                            .frame(width: 8, height: 8)
+                            .offset(
+                                x: cos(angle * .pi / 180) * 40,
+                                y: sin(angle * .pi / 180) * 40
+                            )
+                    }
+                } else {
+                    Text("T".localized)
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(Color(red: 0.7, green: 0.5, blue: 0.1))
+                    
+                    // Small decorative dots in a different pattern
+                    ForEach(0..<8) { index in
+                        let angle = Double(index) * (360.0 / 8.0)
+                        Circle()
+                            .fill(Color(red: 0.7, green: 0.5, blue: 0.1))
+                            .frame(width: 8, height: 8)
+                            .offset(
+                                x: cos(angle * .pi / 180) * 35,
+                                y: sin(angle * .pi / 180) * 35
+                            )
+                    }
                 }
             }
         }

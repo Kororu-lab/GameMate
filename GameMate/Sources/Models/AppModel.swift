@@ -25,6 +25,11 @@ enum GameType: String, CaseIterable, Identifiable, Codable {
         case .ladder: return "square.grid.3x3"
         }
     }
+    
+    // Added localized value
+    var localizedName: String {
+        rawValue.localized
+    }
 }
 
 struct LogEntry: Identifiable, Codable {
@@ -83,8 +88,8 @@ class AppModel: ObservableObject {
     @Published var wheelColors: [Color] = [.red, .blue, .green, .orange, .purple, .yellow]
     
     // Ladder game properties
-    @Published var ladderPlayers: [String] = ["Player 1", "Player 2"]
-    @Published var ladderDestinations: [String] = ["Prize 1", "Prize 2"]
+    @Published var ladderPlayers: [String] = []
+    @Published var ladderDestinations: [String] = []
     
     // History
     @Published var history: [LogEntry] = []
@@ -92,6 +97,13 @@ class AppModel: ObservableObject {
     // Load history on init
     init() {
         loadHistory()
+        initializeLadderItems()
+    }
+    
+    // Initialize ladder items with localized strings
+    private func initializeLadderItems() {
+        ladderPlayers = ["Player 1".localized, "Player 2".localized]
+        ladderDestinations = ["Prize 1".localized, "Prize 2".localized]
     }
     
     // Load history from persistence service
@@ -108,20 +120,19 @@ class AppModel: ObservableObject {
     }
     
     // Filter history by type
-    func filteredHistory(type: LogType?) -> [LogEntry] {
-        guard let type = type else {
+    func getHistory(for type: LogType?) -> [LogEntry] {
+        if let type = type {
+            return history.filter { $0.type == type }
+        } else {
             return history
         }
-        return history.filter { $0.type == type }
     }
     
-    // Toggle game visibility
-    func toggleGameVisibility(_ game: GameType) {
-        if visibleGames.contains(game) {
-            visibleGames.remove(game)
-        } else if visibleGames.count < maxVisibleGames {
-            visibleGames.insert(game)
-        }
+    // MARK: - Game Visibility
+    
+    // Get visible games as an array
+    func getVisibleGames() -> [GameType] {
+        return Array(visibleGames).sorted { $0.rawValue < $1.rawValue }
     }
     
     // Check if a game is visible
@@ -129,9 +140,19 @@ class AppModel: ObservableObject {
         return visibleGames.contains(game)
     }
     
-    // Get array of visible games for TabView
-    func getVisibleGames() -> [GameType] {
-        return GameType.allCases.filter { visibleGames.contains($0) }
+    // Toggle game visibility
+    func toggleGameVisibility(_ game: GameType) {
+        if visibleGames.contains(game) {
+            // Don't remove if it would leave us with no games
+            if visibleGames.count > 1 {
+                visibleGames.remove(game)
+            }
+        } else {
+            // Only add if we have room
+            if visibleGames.count < maxVisibleGames {
+                visibleGames.insert(game)
+            }
+        }
     }
     
     // Clear all history

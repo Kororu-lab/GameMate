@@ -10,13 +10,13 @@ struct DiceView: View {
     
     var body: some View {
         VStack {
-            Text("Dice Roller")
+            Text("Dice Roller".localized)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
             
             HStack {
-                Text("Number of dice: \(appModel.diceCount)")
+                Text("Number of dice: \(appModel.diceCount)".localized)
                 Spacer()
                 Stepper("", value: $appModel.diceCount, in: 1...6, step: 1)
                     .onChange(of: appModel.diceCount) { _, newValue in
@@ -84,13 +84,13 @@ struct DiceView: View {
             
             Spacer()
             
-            Text("Total: \(diceValues.reduce(0, +))")
+            Text("Total: \(diceValues.reduce(0, +))".localized)
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding()
             
             Button(action: rollDice) {
-                Text("Roll Dice")
+                Text("Roll Dice".localized)
                     .font(.title2)
                     .foregroundColor(.white)
                     .padding()
@@ -102,7 +102,7 @@ struct DiceView: View {
             .padding()
             
             NavigationLink(destination: HistoryView(selectedFilter: .dice)) {
-                Text("View History")
+                Text("View History".localized)
                     .font(.headline)
                     .foregroundColor(.blue)
             }
@@ -200,7 +200,7 @@ struct DiceView: View {
                 
                 // Log the result
                 let resultString = diceValues.map { String($0) }.joined(separator: ", ")
-                appModel.addLogEntry(type: .dice, result: "Rolled: \(resultString) (Total: \(diceValues.reduce(0, +)))")
+                appModel.addLogEntry(type: .dice, result: String(format: "Rolled: %@ (Total: %@)".localized, resultString, String(diceValues.reduce(0, +))))
                 
                 isRolling = false
             }

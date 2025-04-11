@@ -19,9 +19,9 @@ struct HistoryView: View {
     
     private var title: String {
         if let filter = selectedFilter {
-            return "\(filter.rawValue) History"
+            return "\(filter.rawValue.localized) \("History".localized)"
         } else {
-            return "All History"
+            return "All Games".localized
         }
     }
     
@@ -43,12 +43,12 @@ struct HistoryView: View {
                     .padding(.trailing)
                     .alert(isPresented: $showingDeleteConfirmation) {
                         Alert(
-                            title: Text("Delete All History"),
-                            message: Text("Are you sure you want to delete all history items? This action cannot be undone."),
-                            primaryButton: .destructive(Text("Delete All")) {
+                            title: Text("Clear All".localized),
+                            message: Text("Are you sure you want to delete all history items? This action cannot be undone.".localized),
+                            primaryButton: .destructive(Text("Clear All".localized)) {
                                 appModel.clearHistory()
                             },
-                            secondaryButton: .cancel()
+                            secondaryButton: .cancel(Text("Cancel".localized))
                         )
                     }
                 }
@@ -56,10 +56,10 @@ struct HistoryView: View {
             .padding(.top)
             .padding(.horizontal)
             
-            Picker("Filter", selection: $selectedFilter) {
-                Text("All").tag(nil as LogType?)
+            Picker("Filter".localized, selection: $selectedFilter) {
+                Text("All Games".localized).tag(nil as LogType?)
                 ForEach(LogType.allCases, id: \.self) { type in
-                    Text(type.rawValue).tag(type as LogType?)
+                    Text(type.rawValue.localized).tag(type as LogType?)
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
@@ -68,7 +68,7 @@ struct HistoryView: View {
             if filteredHistory.isEmpty {
                 VStack {
                     Spacer()
-                    Text("No history yet")
+                    Text("No history yet".localized)
                         .foregroundColor(.gray)
                     Spacer()
                 }
