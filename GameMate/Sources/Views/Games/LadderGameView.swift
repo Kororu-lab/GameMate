@@ -21,14 +21,14 @@ struct LadderGameView: View {
         VStack {
             Text("Ladder Game")
                 .font(.largeTitle)
+                .fontWeight(.bold)
                 .padding()
             
             // Ladder count control
             HStack {
-                Text("Number of ladders:")
-                    .font(.headline)
-                Stepper("\(ladderCount)", value: $ladderCount, in: 2...6)
-                    .frame(width: 120)
+                Text("Number of ladders: \(ladderCount)")
+                Spacer()
+                Stepper("", value: $ladderCount, in: 2...6)
                     .onChange(of: ladderCount) { _, _ in
                         withAnimation {
                             resetGame()
@@ -64,15 +64,15 @@ struct LadderGameView: View {
             }
             .padding()
             
+            Spacer()
+            
             // Show result
             if showResult, let selected = selectedLadder {
-                Text("Result: \(selected + 1)")
-                    .font(.title)
-                    .foregroundColor(colors[selected % colors.count])
+                Text("Result: \(appModel.ladderDestinations[min(selected, appModel.ladderDestinations.count - 1)])")
+                    .font(.title2)
+                    .fontWeight(.semibold)
                     .padding()
             }
-            
-            Spacer()
             
             HStack(spacing: 20) {
                 // Reset button
@@ -83,11 +83,11 @@ struct LadderGameView: View {
                 }) {
                     Text("Reset")
                         .font(.title2)
-                        .padding()
-                        .frame(minWidth: 100)
-                        .background(Color.gray)
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.gray)
+                        .cornerRadius(10)
                 }
                 
                 // Shuffle button
@@ -98,14 +98,21 @@ struct LadderGameView: View {
                 }) {
                     Text("Shuffle")
                         .font(.title2)
-                        .padding()
-                        .frame(minWidth: 100)
-                        .background(Color.orange)
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
                 }
             }
-            .padding(.bottom, 40)
+            .padding()
+            
+            NavigationLink(destination: HistoryView(selectedFilter: nil)) {
+                Text("View History")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+            .padding(.bottom)
         }
         .onAppear {
             resetGame(generateNewLines: true)
@@ -393,3 +400,4 @@ extension LadderGameView {
 #Preview {
     LadderGameView()
 } 
+

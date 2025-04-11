@@ -11,6 +11,7 @@ struct ArrowSpinnerView: View {
         VStack {
             Text("Arrow Spinner")
                 .font(.largeTitle)
+                .fontWeight(.bold)
                 .padding()
             
             Spacer()
@@ -23,13 +24,13 @@ struct ArrowSpinnerView: View {
                 
                 // Arrow
                 Arrow()
-                    .stroke(Color.red, lineWidth: 4)
+                    .stroke(Color.blue, lineWidth: 4)
                     .frame(width: 240, height: 20)
                     .rotationEffect(Angle(degrees: rotationDegrees))
                 
                 // Center circle
                 Circle()
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Color.white)
                     .frame(width: 50, height: 50)
                     .shadow(color: .gray, radius: 2)
             }
@@ -42,6 +43,13 @@ struct ArrowSpinnerView: View {
             
             Spacer()
             
+            if !isSpinning && selectedPosition != nil {
+                Text("Result: \(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))°")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .padding()
+            }
+            
             Button(action: {
                 if !isSpinning {
                     spinArrow()
@@ -49,14 +57,21 @@ struct ArrowSpinnerView: View {
             }) {
                 Text("Spin")
                     .font(.title2)
-                    .padding()
-                    .frame(minWidth: 120)
-                    .background(Color.blue)
                     .foregroundColor(.white)
-                    .cornerRadius(8)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(isSpinning ? Color.gray : Color.blue)
+                    .cornerRadius(10)
             }
             .disabled(isSpinning)
-            .padding(.bottom, 40)
+            .padding()
+            
+            NavigationLink(destination: HistoryView(selectedFilter: .arrow)) {
+                Text("View History")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+            .padding(.bottom)
         }
     }
     
@@ -83,6 +98,7 @@ struct ArrowSpinnerView: View {
             
             // Calculate final position (0-359 degrees)
             let normalizedAngle = Int(rotationDegrees.truncatingRemainder(dividingBy: 360))
+            selectedPosition = normalizedAngle
             
             // Log the result
             appModel.addLogEntry(

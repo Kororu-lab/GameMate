@@ -19,26 +19,33 @@ struct SpinWheelView: View {
         VStack {
             Text("Spin Wheel")
                 .font(.largeTitle)
+                .fontWeight(.bold)
                 .padding()
             
             // Section count stepper
             HStack {
-                Text("Number of sections:")
-                Stepper("\(sectionCount)", value: $sectionCount, in: 2...12)
-                    .frame(width: 150)
+                Text("Number of sections: \(sectionCount)")
+                Spacer()
+                Stepper("", value: $sectionCount, in: 2...12)
                     .onChange(of: sectionCount) { _, newValue in
                         updateSections()
                     }
             }
             .padding(.horizontal)
             
-            Button("Edit Wheel") {
+            Button(action: {
                 isEditingSegments = true
+            }) {
+                Text("Edit Wheel")
+                    .font(.headline)
+                    .foregroundColor(.blue)
             }
             .padding(.bottom)
             .sheet(isPresented: $isEditingSegments) {
                 EditSegmentsView(segments: $appModel.wheelSegments)
             }
+            
+            Spacer()
             
             ZStack {
                 // Background circle
@@ -69,7 +76,7 @@ struct SpinWheelView: View {
                     .overlay(
                         Image(systemName: "arrow.clockwise.circle.fill")
                             .font(.system(size: 40))
-                            .foregroundColor(.red)
+                            .foregroundColor(.blue)
                     )
                     .zIndex(5)
                     .onTapGesture {
@@ -80,9 +87,12 @@ struct SpinWheelView: View {
             }
             .frame(width: 300, height: 300)
             
+            Spacer()
+            
             if let selectedSection = selectedSection {
                 Text("Result: \(selectedSection.text)")
                     .font(.title2)
+                    .fontWeight(.semibold)
                     .padding()
             }
             
@@ -103,21 +113,21 @@ struct SpinWheelView: View {
             }) {
                 Text("Spin")
                     .font(.title2)
-                    .padding()
-                    .frame(minWidth: 120)
-                    .background(Color.blue)
                     .foregroundColor(.white)
-                    .cornerRadius(8)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(isSpinning ? Color.gray : Color.blue)
+                    .cornerRadius(10)
             }
             .disabled(isSpinning)
-            .padding(.bottom, 10)
+            .padding()
             
             NavigationLink(destination: HistoryView(selectedFilter: .wheel)) {
                 Text("View History")
                     .font(.headline)
                     .foregroundColor(.blue)
             }
-            .padding(.bottom, 20)
+            .padding(.bottom)
             
             // Enable debug mode with double tap
             Text("")
@@ -249,15 +259,16 @@ struct SectionView: View {
                 path.addArc(center: center, radius: radius, startAngle: Angle(radians: startAngle), endAngle: Angle(radians: endAngle), clockwise: false)
                 path.addLine(to: center)
             }
-            .fill(section.color)
+            .fill(section.color.opacity(0.9))
             .overlay(
                 Path { path in
                     path.move(to: center)
                     path.addArc(center: center, radius: radius, startAngle: Angle(radians: startAngle), endAngle: Angle(radians: endAngle), clockwise: false)
                     path.addLine(to: center)
                 }
-                .stroke(Color.white, lineWidth: 1)
+                .stroke(Color.white, lineWidth: 2)
             )
+            .shadow(color: .gray.opacity(0.2), radius: 1, x: 0, y: 1)
             
             // Position text in the middle of each section
             Text(section.text)
@@ -270,6 +281,7 @@ struct SectionView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: 60)
                 .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 0)
         }
     }
 }
@@ -283,6 +295,7 @@ struct EditSegmentsView: View {
             List {
                 ForEach(0..<segments.count, id: \.self) { index in
                     TextField("Section \(index + 1)", text: $segments[index])
+                        .padding(.vertical, 8)
                 }
                 .onDelete { indexSet in
                     segments.remove(atOffsets: indexSet)
@@ -291,8 +304,15 @@ struct EditSegmentsView: View {
                     segments.move(fromOffsets: source, toOffset: destination)
                 }
                 
-                Button("Add Section") {
+                Button(action: {
                     segments.append("\(segments.count + 1)")
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add Section")
+                    }
+                    .foregroundColor(.blue)
+                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("Edit Wheel Sections")
@@ -303,6 +323,7 @@ struct EditSegmentsView: View {
                 trailing: Button("Done") {
                     dismiss()
                 }
+                .fontWeight(.bold)
             )
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
