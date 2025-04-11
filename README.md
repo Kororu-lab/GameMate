@@ -86,6 +86,7 @@ Each game in GameMate features beautiful animations and a clean, intuitive inter
 - **🎡 Spin Wheel**: Customizable segments for random decision making
 - **↗️ Arrow Spinner**: Simple spinner with smooth rotation animations
 - **🪜 Ladder Game**: Connect players to destinations with animated paths
+- ...and more? Will be updated
 
 ## 🧰 Project Structure
 
