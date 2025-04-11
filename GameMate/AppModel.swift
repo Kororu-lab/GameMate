@@ -5,7 +5,6 @@ enum LogType: String, CaseIterable {
     case coin = "Coin"
     case wheel = "Wheel"
     case arrow = "Arrow"
-    case ladder = "Ladder"
 }
 
 enum GameType: String, CaseIterable, Identifiable {

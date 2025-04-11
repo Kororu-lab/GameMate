@@ -75,7 +75,6 @@ struct HistoryView: View {
         case .coin: return "circle.fill"
         case .wheel: return "arrow.clockwise.circle"
         case .arrow: return "arrow.up.circle"
-        case .ladder: return "square.grid.3x3"
         }
     }
     
@@ -85,7 +84,6 @@ struct HistoryView: View {
         case .coin: return .yellow
         case .wheel: return .green
         case .arrow: return .red
-        case .ladder: return .purple
         }
     }
     

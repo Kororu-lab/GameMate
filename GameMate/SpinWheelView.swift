@@ -176,14 +176,16 @@ struct SpinWheelView: View {
         // Calculate which section the pointer is pointing at
         let degreesPerSection = 360.0 / Double(sections.count)
         
-        // Calculate section index directly by dividing the angle
-        // The pointer is at the top (0 degrees), so we need to adjust
-        let adjustedAngle = (positiveAngle + degreesPerSection / 2).truncatingRemainder(dividingBy: 360)
-        let sectionIndex = Int(adjustedAngle / degreesPerSection)
+        // Calculate the section index
+        let sectionIndex = Int(positiveAngle / degreesPerSection)
         
-        // Ensure the index is valid
-        let validIndex = min(max(0, sectionIndex), sections.count - 1)
-        selectedSection = sections[validIndex]
+        // Completely invert the result (get the opposite section)
+        // This is because the wheel selection is currently showing the opposite of what it should
+        let oppositeIndex = (sectionIndex + sections.count/2) % sections.count
+        
+        selectedSection = sections[oppositeIndex]
+        
+        print("Angle: \(positiveAngle), Raw Index: \(sectionIndex), Opposite Index: \(oppositeIndex), Selected: \(selectedSection?.text ?? "none")")
         
         // Log the result
         if let selected = selectedSection {
