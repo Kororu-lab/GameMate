@@ -67,31 +67,25 @@ This approach demonstrates how LLMs are revolutionizing software development, ma
 Each game in GameMate features beautiful animations and a clean, intuitive interface:
 
 <div align="center">
-  <div>
-    <img src="screenshots/dice.png" alt="Dice Roller" width="200"/>
-    <p><strong>🎲 Dice Roller</strong>: Roll up to 6 dice with realistic physics and customizable colors</p>
-  </div>
-  
-  <div>
-    <img src="screenshots/coin.png" alt="Coin Flipper" width="200"/>
-    <p><strong>🪙 Coin Flipper</strong>: Flip coins with beautiful 3D animations and physics</p>
-  </div>
-  
-  <div>
-    <img src="screenshots/wheel.png" alt="Spin Wheel" width="200"/>
-    <p><strong>🎡 Spin Wheel</strong>: Customize segments and colors for random decision making</p>
-  </div>
-  
-  <div>
-    <img src="screenshots/arrow.png" alt="Arrow Spinner" width="200"/>
-    <p><strong>↗️ Arrow Spinner</strong>: Simple spinner with smooth rotation animations</p>
-  </div>
-  
-  <div>
-    <img src="screenshots/ladder.png" alt="Ladder Game" width="200"/>
-    <p><strong>🪜 Ladder Game</strong>: Connect players to destinations with animated paths</p>
-  </div>
+  <table>
+    <tr>
+      <td align="center"><img src="screenshots/dice.png" alt="Dice Roller" width="150"/></td>
+      <td align="center"><img src="screenshots/coin.png" alt="Coin Flipper" width="150"/></td>
+      <td align="center"><img src="screenshots/wheel.png" alt="Spin Wheel" width="150"/></td>
+    </tr>
+    <tr>
+      <td align="center"><img src="screenshots/arrow.png" alt="Arrow Spinner" width="150"/></td>
+      <td align="center"><img src="screenshots/ladder.png" alt="Ladder Game" width="150"/></td>
+      <td align="center"></td>
+    </tr>
+  </table>
 </div>
+
+- **🎲 Dice Roller**: Physics-based animations with customizable colors
+- **🪙 Coin Flipper**: Realistic 3D animations with physics effects
+- **🎡 Spin Wheel**: Customizable segments for random decision making
+- **↗️ Arrow Spinner**: Simple spinner with smooth rotation animations
+- **🪜 Ladder Game**: Connect players to destinations with animated paths
 
 ## 🧰 Project Structure
 
