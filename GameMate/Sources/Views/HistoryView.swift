@@ -3,6 +3,7 @@ import SwiftUI
 struct HistoryView: View {
     @EnvironmentObject private var appModel: AppModel
     @State private var selectedFilter: LogType?
+    @State private var showingDeleteConfirmation = false
     
     init(selectedFilter: LogType? = nil) {
         _selectedFilter = State(initialValue: selectedFilter)
@@ -26,9 +27,34 @@ struct HistoryView: View {
     
     var body: some View {
         VStack {
-            Text(title)
-                .font(.headline)
-                .padding(.top)
+            HStack {
+                Text(title)
+                    .font(.headline)
+                
+                Spacer()
+                
+                if !filteredHistory.isEmpty {
+                    Button(action: {
+                        showingDeleteConfirmation = true
+                    }) {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                    }
+                    .padding(.trailing)
+                    .alert(isPresented: $showingDeleteConfirmation) {
+                        Alert(
+                            title: Text("Delete All History"),
+                            message: Text("Are you sure you want to delete all history items? This action cannot be undone."),
+                            primaryButton: .destructive(Text("Delete All")) {
+                                appModel.clearHistory()
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+                }
+            }
+            .padding(.top)
+            .padding(.horizontal)
             
             Picker("Filter", selection: $selectedFilter) {
                 Text("All").tag(nil as LogType?)
@@ -64,8 +90,17 @@ struct HistoryView: View {
                         }
                         .padding(.vertical, 4)
                     }
+                    .onDelete(perform: deleteItems)
                 }
+                .listStyle(PlainListStyle())
             }
+        }
+    }
+    
+    private func deleteItems(at offsets: IndexSet) {
+        for offset in offsets {
+            let entryId = filteredHistory[offset].id
+            appModel.deleteHistoryEntry(id: entryId)
         }
     }
     

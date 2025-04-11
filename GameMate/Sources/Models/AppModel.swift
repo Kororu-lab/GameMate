@@ -139,4 +139,13 @@ class AppModel: ObservableObject {
         history.removeAll()
         HistoryPersistenceService.shared.clearHistory()
     }
+    
+    // Delete a single history entry
+    func deleteHistoryEntry(id: UUID) {
+        if let index = history.firstIndex(where: { $0.id == id }) {
+            history.remove(at: index)
+            // Update persistence
+            HistoryPersistenceService.shared.saveHistory(entries: history)
+        }
+    }
 } 
