@@ -16,7 +16,7 @@ struct DiceView: View {
                 .padding()
             
             HStack {
-                Text("Number of dice: \(appModel.diceCount)".localized)
+                Text(String(format: "Number of dice: %@".localized, String(appModel.diceCount)))
                 Spacer()
                 Stepper("", value: $appModel.diceCount, in: 1...6, step: 1)
                     .onChange(of: appModel.diceCount) { _, newValue in
@@ -84,7 +84,7 @@ struct DiceView: View {
             
             Spacer()
             
-            Text("Total: \(diceValues.reduce(0, +))".localized)
+            Text(String(format: "Total: %@".localized, String(diceValues.reduce(0, +))))
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding()

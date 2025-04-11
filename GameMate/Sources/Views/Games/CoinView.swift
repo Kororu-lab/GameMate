@@ -18,7 +18,7 @@ struct CoinView: View {
                 .padding()
             
             HStack {
-                Text("Number of coins: \(coinCount)".localized)
+                Text(String(format: "Number of coins: %@".localized, String(coinCount)))
                 Spacer()
                 Stepper("", value: $coinCount, in: 1...6, step: 1)
                     .onChange(of: coinCount) { _, newValue in
@@ -93,7 +93,7 @@ struct CoinView: View {
                 let headsCount = coinResults.filter { $0 }.count
                 let tailsCount = coinResults.count - headsCount
                 
-                Text("Results: \(headsCount) Heads, \(tailsCount) Tails".localized)
+                Text(String(format: "Results: %@ Heads, %@ Tails".localized, String(headsCount), String(tailsCount)))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()

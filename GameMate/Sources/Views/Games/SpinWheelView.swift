@@ -24,7 +24,7 @@ struct SpinWheelView: View {
             
             // Section count stepper
             HStack {
-                Text("Number of sections: \(sectionCount)".localized)
+                Text(String(format: "Number of sections: %@".localized, String(sectionCount)))
                 Spacer()
                 Stepper("", value: $sectionCount, in: 2...12)
                     .onChange(of: sectionCount) { _, newValue in
@@ -90,7 +90,7 @@ struct SpinWheelView: View {
             Spacer()
             
             if let selectedSection = selectedSection {
-                Text("Result: \(selectedSection.text)".localized)
+                Text(String(format: "Result: %@".localized, selectedSection.text))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()
@@ -98,9 +98,9 @@ struct SpinWheelView: View {
             
             if showDebugInfo {
                 HStack {
-                    Text("Current angle: \(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))°")
+                    Text(String(format: "Current angle: %@°", String(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))))
                     Spacer()
-                    Text("Section count: \(sections.count)")
+                    Text(String(format: "Section count: %@", String(sections.count)))
                 }
                 .font(.caption)
                 .padding(.horizontal)

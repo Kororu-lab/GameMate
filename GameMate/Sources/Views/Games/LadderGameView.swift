@@ -27,7 +27,7 @@ struct LadderGameView: View {
             
             // Ladder count control
             HStack {
-                Text("Number of ladders: \(ladderCount)".localized)
+                Text(String(format: "Number of ladders: %@".localized, String(ladderCount)))
                 Spacer()
                 Stepper("", value: $ladderCount, in: 2...6)
                     .onChange(of: ladderCount) { _, _ in
@@ -72,7 +72,7 @@ struct LadderGameView: View {
             
             // Show result
             if showResult, let selected = selectedLadder {
-                Text("Result: \(selected + 1)".localized)
+                Text(String(format: "Result: %@".localized, String(selected + 1)))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()

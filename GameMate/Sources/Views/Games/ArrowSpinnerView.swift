@@ -44,7 +44,7 @@ struct ArrowSpinnerView: View {
             Spacer()
             
             if !isSpinning && selectedPosition != nil {
-                Text("Result: \(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))°".localized)
+                Text(String(format: "Result: %@°".localized, String(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()

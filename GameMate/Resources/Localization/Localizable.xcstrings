@@ -2822,6 +2822,52 @@
           }
         }
       }
+    },
+    "Tossed %@ coins: %@ Heads, %@ Tails" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geworfen %@ Münzen: %@ Kopf, %@ Zahl"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tossed %@ coins: %@ Heads, %@ Tails"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanzadas %@ monedas: %@ Caras, %@ Cruces"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lancé %@ pièces: %@ Faces, %@ Piles"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@枚のコインを投げた: 表%@枚、裏%@枚"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "동전 %@개 던짐: 앞면 %@개, 뒷면 %@개"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "投掷 %@ 硬币: %@ 正面, %@ 反面"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
