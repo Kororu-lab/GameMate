@@ -10,6 +10,7 @@ struct LadderGameView: View {
     @State private var isAnimating: Bool = false
     @State private var showResult: Bool = false
     @State private var showHorizontalLines: Bool = false // Show horizontal lines
+    @State private var ladderViewSize: CGSize = .zero // Store ladder view size
     
     // Different colors array
     private let colors: [Color] = [
@@ -55,8 +56,11 @@ struct LadderGameView: View {
                     showResult: showResult,
                     showHorizontalLines: showHorizontalLines,
                     colors: colors,
-                    onStartSelected: { index in
-                        tracePath(from: index)
+                    onStartSelected: { index, point in
+                        tracePath(from: index, startPoint: point)
+                    },
+                    onSizeChanged: { size in
+                        ladderViewSize = size
                     }
                 )
                 .padding()
@@ -68,7 +72,7 @@ struct LadderGameView: View {
             
             // Show result
             if showResult, let selected = selectedLadder {
-                Text("Result: \(appModel.ladderDestinations[min(selected, appModel.ladderDestinations.count - 1)])")
+                Text("Result: \(selected + 1)")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding()
@@ -120,14 +124,14 @@ struct LadderGameView: View {
     }
     
     private func resetGame(generateNewLines: Bool = true) {
-        // 상태 초기화
+        // Reset state
         selectedLadder = nil
         pathPoints = []
         showResult = false
         isAnimating = false
         showHorizontalLines = false 
         
-        // 필요한 경우에만 새로운 가로선 생성
+        // Only generate new horizontal lines if needed
         if generateNewLines {
             generateHorizontalLines()
         }
@@ -136,15 +140,15 @@ struct LadderGameView: View {
     private func generateHorizontalLines() {
         horizontalLines = []
         
-        // 사다리의 층수 (높이)
+        // Number of horizontal layers in the ladder
         let ladderHeight = 6
         
         for _ in 0..<ladderHeight {
             var rowLines = [Bool](repeating: false, count: ladderCount - 1)
             
-            // 각 층마다 무작위로 가로선 생성
+            // Randomly create horizontal lines for each layer
             for i in 0..<ladderCount - 1 {
-                // 연속된 가로선 방지
+                // Prevent consecutive horizontal lines
                 if i > 0 && rowLines[i - 1] {
                     rowLines[i] = false
                 } else {
@@ -165,29 +169,31 @@ struct LadderView: View {
     let showResult: Bool
     let showHorizontalLines: Bool
     let colors: [Color]
-    let onStartSelected: (Int) -> Void
+    let onStartSelected: (Int, CGPoint) -> Void
+    let onSizeChanged: (CGSize) -> Void
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // 세로선 그리기
+                // Draw vertical lines
                 ForEach(0..<count, id: \.self) { i in
                     let x = self.getXPosition(for: i, in: geometry)
                     
                     VStack {
-                        // 시작점 (상단 원)
+                        // Start point (top circle)
                         Circle()
                             .fill(colors[i % colors.count])
                             .frame(width: 30, height: 30)
                             .onTapGesture {
-                                onStartSelected(i)
+                                let circleCenter = CGPoint(x: x, y: 30)
+                                onStartSelected(i, circleCenter)
                             }
                         
                         Spacer()
                     }
                     .position(x: x, y: geometry.size.height / 2)
                     
-                    // 세로선
+                    // Vertical line
                     Path { path in
                         path.move(to: CGPoint(x: x, y: 30))
                         path.addLine(to: CGPoint(x: x, y: geometry.size.height - 30))
@@ -197,15 +203,15 @@ struct LadderView: View {
                     VStack {
                         Spacer()
                         
-                        // 결과점 (하단 원)
+                        // End point (bottom circle)
                         Circle()
-                            .fill(showResult && selectedLadder != nil ? colors[selectedLadder! % colors.count] : colors[i % colors.count])
+                            .fill(showResult && selectedLadder == i ? colors[selectedLadder! % colors.count] : Color.red)
                             .frame(width: 30, height: 30)
                     }
                     .position(x: x, y: geometry.size.height / 2)
                 }
                 
-                // 가로선 그리기 - 선택 후에만 보이도록
+                // Draw horizontal lines - only visible after selection
                 ForEach(0..<horizontalLines.count, id: \.self) { row in
                     ForEach(0..<horizontalLines[row].count, id: \.self) { col in
                         if horizontalLines[row][col] {
@@ -224,7 +230,7 @@ struct LadderView: View {
                     }
                 }
                 
-                // 선택된 경로 그리기
+                // Draw the selected path
                 if pathPoints.count >= 2 {
                     Path { path in
                         path.move(to: pathPoints[0])
@@ -239,6 +245,12 @@ struct LadderView: View {
                     )
                 }
             }
+            .onAppear {
+                onSizeChanged(geometry.size)
+            }
+            .onChange(of: geometry.size) { _, newSize in
+                onSizeChanged(newSize)
+            }
         }
     }
     
@@ -248,14 +260,14 @@ struct LadderView: View {
     }
     
     private func getYPosition(for index: Int, in geometry: GeometryProxy) -> CGFloat {
-        let usableHeight = geometry.size.height - 60 // 상하단 원의 공간 고려
+        let usableHeight = geometry.size.height - 60 // Account for top and bottom circles
         let spacing = usableHeight / CGFloat(horizontalLines.count + 1)
         return 30 + spacing * CGFloat(index + 1)
     }
 }
 
 extension LadderGameView {
-    func tracePath(from startIndex: Int) {
+    func tracePath(from startIndex: Int, startPoint: CGPoint) {
         guard !isAnimating && !showResult else { return }
         guard startIndex >= 0 && startIndex < ladderCount else { return }
         
@@ -263,122 +275,117 @@ extension LadderGameView {
         selectedLadder = startIndex
         pathPoints = []
         
-        // 가로선 보이기
+        // Show horizontal lines with animation
         withAnimation(.easeIn(duration: 0.3)) {
             showHorizontalLines = true
         }
         
-        // 잠시 기다린 후 경로 애니메이션 시작
+        // Wait briefly then start path animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            // 현재 위치와 방향 초기화
-            var currentCol = startIndex
-            var currentRow = 0
-            var points: [CGPoint] = []
+            // Calculate all path points in advance for smoother animation
+            let allPathPoints = self.calculateFullPath(startCol: startIndex, startPoint: startPoint)
             
-            // 애니메이션 효과를 위한 지연 시간 계산
-            let totalSteps = self.horizontalLines.count * 2 // 대략적인 최대 스텝 수
-            let animationDuration = 1.5 // 총 애니메이션 시간
-            let stepDelay = animationDuration / Double(totalSteps)
-            
-            // 시작점 추가
-            let startPoint = CGPoint(x: self.getXPosition(for: currentCol, width: 300, count: self.ladderCount), y: 30)
-            self.pathPoints = [startPoint]
-            
-            // 경로 따라가기
-            self.followPath(currentCol: currentCol, currentRow: currentRow, delay: stepDelay, points: points)
+            // Add each point with animation delay
+            self.animatePathPoints(points: allPathPoints)
         }
     }
     
-    private func followPath(currentCol: Int, currentRow: Int, delay: Double, points: [CGPoint]) {
-        // 범위 확인
-        guard currentRow >= 0 && currentRow < horizontalLines.count else { return }
-        guard currentCol >= 0 && currentCol < ladderCount else { return }
+    // Calculate the full path in advance to ensure correct routing
+    private func calculateFullPath(startCol: Int, startPoint: CGPoint) -> [CGPoint] {
+        var points = [CGPoint]()
+        var currentCol = startCol
         
-        var currentCol = currentCol
-        var currentRow = currentRow
-        var newPoints = points
+        // Use the exact provided starting point
+        points.append(startPoint)
         
-        // 다음 지점 결정
-        let goRight = currentCol < ladderCount - 1 && 
-            currentRow < horizontalLines.count && 
-            currentCol < horizontalLines[currentRow].count && 
-            horizontalLines[currentRow][currentCol]
+        // For each row, determine path movement
+        for row in 0..<horizontalLines.count {
+            let currentY = getYPosition(for: row, height: ladderViewSize.height, lines: horizontalLines.count)
             
-        let goLeft = currentCol > 0 && 
-            currentRow < horizontalLines.count && 
-            currentCol - 1 < horizontalLines[currentRow].count && 
-            horizontalLines[currentRow][currentCol - 1]
-        
-        let currentX = getXPosition(for: currentCol, width: 300, count: ladderCount)
-        let currentY = getYPosition(for: currentRow, height: 380, lines: horizontalLines.count)
-        
-        if goRight || goLeft {
-            // 가로선 따라가기
-            let nextX = getXPosition(for: goRight ? currentCol + 1 : currentCol - 1, width: 300, count: ladderCount)
+            // Check if there's a horizontal line to the right
+            let goRight = currentCol < ladderCount - 1 && 
+                currentCol < horizontalLines[row].count && 
+                horizontalLines[row][currentCol]
             
-            // 가로 이동 추가
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                let nextPoint = CGPoint(x: nextX, y: currentY)
-                self.pathPoints.append(nextPoint)
+            // Check if there's a horizontal line to the left
+            let goLeft = currentCol > 0 && 
+                currentCol - 1 < horizontalLines[row].count && 
+                horizontalLines[row][currentCol - 1]
+            
+            if goRight {
+                // Add point at current position before moving right
+                let currentX = getXPosition(for: currentCol, width: ladderViewSize.width, count: ladderCount)
+                points.append(CGPoint(x: currentX, y: currentY))
                 
-                // 다음 열로 업데이트
-                let nextCol = goRight ? currentCol + 1 : currentCol - 1
+                // Move right
+                currentCol += 1
+                let nextX = getXPosition(for: currentCol, width: ladderViewSize.width, count: ladderCount)
+                points.append(CGPoint(x: nextX, y: currentY))
+            } else if goLeft {
+                // Add point at current position before moving left
+                let currentX = getXPosition(for: currentCol, width: ladderViewSize.width, count: ladderCount)
+                points.append(CGPoint(x: currentX, y: currentY))
                 
-                // 범위 확인
-                if nextCol < 0 || nextCol >= self.ladderCount {
-                    self.finishAnimation(at: currentCol)
-                    return
-                }
+                // Move left
+                currentCol -= 1
+                let nextX = getXPosition(for: currentCol, width: ladderViewSize.width, count: ladderCount)
+                points.append(CGPoint(x: nextX, y: currentY))
+            }
+            
+            // Always add a point for vertical movement
+            if row < horizontalLines.count - 1 {
+                let nextY = getYPosition(for: row + 1, height: ladderViewSize.height, lines: horizontalLines.count)
+                let currentX = getXPosition(for: currentCol, width: ladderViewSize.width, count: ladderCount)
+                points.append(CGPoint(x: currentX, y: nextY))
+            }
+        }
+        
+        // Add end point at the bottom circle
+        let endY = ladderViewSize.height - 30.0
+        let endX = getXPosition(for: currentCol, width: ladderViewSize.width, count: ladderCount)
+        points.append(CGPoint(x: endX, y: endY))
+        
+        return points
+    }
+    
+    // Animate through the points one by one with delay
+    private func animatePathPoints(points: [CGPoint]) {
+        guard !points.isEmpty else { return }
+        
+        // The first point is already added to pathPoints array
+        self.pathPoints = [points[0]]
+        
+        let totalDuration = 1.5 // Total animation time
+        let pointDelay = totalDuration / Double(points.count)
+        
+        for i in 1..<points.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * pointDelay) {
+                // Only proceed if we're still animating (avoid race conditions)
+                guard self.isAnimating else { return }
                 
-                // 아래로 한 칸 더 내려가기
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    if currentRow + 1 >= self.horizontalLines.count {
-                        self.finishAnimation(at: nextCol)
-                        return
+                self.pathPoints.append(points[i])
+                
+                // When we reach the end point
+                if i == points.count - 1 {
+                    // Determine the final column from the end point x-coordinate
+                    let endPointX = points[i].x
+                    let finalCol = self.getFinalColumn(from: endPointX)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.selectedLadder = finalCol
+                        self.showResult = true
+                        self.isAnimating = false
                     }
-                    
-                    let nextRowY = self.getYPosition(for: currentRow + 1, height: 380, lines: self.horizontalLines.count)
-                    let nextRowPoint = CGPoint(x: nextX, y: nextRowY)
-                    self.pathPoints.append(nextRowPoint)
-                    
-                    // 재귀 호출로 계속 진행
-                    self.followPath(currentCol: nextCol, currentRow: currentRow + 1, delay: delay, points: newPoints)
                 }
-            }
-        } else {
-            // 가로선 없이 수직 이동
-            if currentRow < horizontalLines.count - 1 {
-                // 아직 바닥에 도달하지 않음
-                let nextY = getYPosition(for: currentRow + 1, height: 380, lines: horizontalLines.count)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    let nextPoint = CGPoint(x: currentX, y: nextY)
-                    self.pathPoints.append(nextPoint)
-                    
-                    // 다음 행으로 이동
-                    self.followPath(currentCol: currentCol, currentRow: currentRow + 1, delay: delay, points: newPoints)
-                }
-            } else {
-                // 바닥에 도달, 결과 표시
-                finishAnimation(at: currentCol)
             }
         }
     }
     
-    private func finishAnimation(at finalCol: Int) {
-        guard finalCol >= 0 && finalCol < ladderCount else { return }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let finalPoint = CGPoint(x: self.getXPosition(for: finalCol, width: 300, count: self.ladderCount), y: 380 - 30)
-            self.pathPoints.append(finalPoint)
-            
-            // 애니메이션 완료
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.selectedLadder = finalCol
-                self.showResult = true
-                self.isAnimating = false
-            }
-        }
+    // Calculate the column index from the x position
+    private func getFinalColumn(from x: CGFloat) -> Int {
+        let spacing = ladderViewSize.width / CGFloat(ladderCount + 1)
+        let col = Int(round(x / spacing)) - 1
+        return max(0, min(col, ladderCount - 1))
     }
     
     private func getXPosition(for index: Int, width: CGFloat, count: Int) -> CGFloat {
@@ -391,7 +398,7 @@ extension LadderGameView {
     private func getYPosition(for index: Int, height: CGFloat, lines: Int) -> CGFloat {
         guard lines > 0 else { return 30 }
         let safeIndex = max(0, min(index, lines - 1))
-        let usableHeight = height - 60 // 상하단 원의 공간 고려
+        let usableHeight = height - 60 // Account for top and bottom circles
         let spacing = usableHeight / CGFloat(lines + 1)
         return 30 + spacing * CGFloat(safeIndex + 1)
     }
