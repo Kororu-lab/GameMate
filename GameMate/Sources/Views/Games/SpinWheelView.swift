@@ -8,6 +8,7 @@ struct SpinWheelView: View {
     @State private var isSpinning: Bool = false
     @State private var selectedSection: WheelSection?
     @State private var isEditingSegments: Bool = false
+    @State private var showDebugInfo: Bool = false
     
     init() {
         // Default section count
@@ -40,20 +41,17 @@ struct SpinWheelView: View {
             }
             
             ZStack {
-                // Wheel
+                // Background circle
                 Circle()
                     .fill(Color.gray.opacity(0.1))
                     .frame(width: 300, height: 300)
-                    .overlay(
-                        ForEach(sections) { section in
-                            WheelSectionView(
-                                section: section,
-                                totalSections: sections.count,
-                                index: getIndex(for: section)
-                            )
-                        }
-                        .rotationEffect(Angle(degrees: rotationDegrees))
-                    )
+                
+                // Wheel sections
+                WheelView(
+                    sections: sections,
+                    rotation: rotationDegrees
+                )
+                .frame(width: 300, height: 300)
                 
                 // Pointer
                 WheelTriangle()
@@ -61,6 +59,7 @@ struct SpinWheelView: View {
                     .frame(width: 20, height: 20)
                     .shadow(color: .gray, radius: 1)
                     .position(x: 150, y: 10)
+                    .zIndex(10)
                 
                 // Center circle with spinner icon
                 Circle()
@@ -72,6 +71,7 @@ struct SpinWheelView: View {
                             .font(.system(size: 40))
                             .foregroundColor(.red)
                     )
+                    .zIndex(5)
                     .onTapGesture {
                         if !isSpinning {
                             spinWheel()
@@ -84,6 +84,16 @@ struct SpinWheelView: View {
                 Text("Result: \(selectedSection.text)")
                     .font(.title2)
                     .padding()
+            }
+            
+            if showDebugInfo {
+                HStack {
+                    Text("Current angle: \(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))°")
+                    Spacer()
+                    Text("Section count: \(sections.count)")
+                }
+                .font(.caption)
+                .padding(.horizontal)
             }
             
             Button(action: {
@@ -108,6 +118,13 @@ struct SpinWheelView: View {
                     .foregroundColor(.blue)
             }
             .padding(.bottom, 20)
+            
+            // Enable debug mode with double tap
+            Text("")
+                .frame(width: 0, height: 0)
+                .onTapGesture(count: 2) {
+                    showDebugInfo.toggle()
+                }
         }
         .onAppear {
             updateSections()
@@ -139,60 +156,120 @@ struct SpinWheelView: View {
         selectedSection = nil
     }
     
+    private func spinWheel() {
+        guard !isSpinning, !sections.isEmpty else { return }
+        
+        isSpinning = true
+        selectedSection = nil
+        
+        // Truly random spin - pick a random number of spins (2-5) plus a random ending position
+        let spins = Double.random(in: 2...5)
+        let randomAngle = Double.random(in: 0..<360)
+        let finalRotation = rotationDegrees + (spins * 360) + randomAngle
+        
+        // Animation duration
+        let spinDuration = Double.random(in: 3.0...5.0)
+        
+        // Start spinning animation
+        withAnimation(.easeInOut(duration: spinDuration)) {
+            rotationDegrees = finalRotation
+        }
+        
+        // When animation completes, determine the result
+        DispatchQueue.main.asyncAfter(deadline: .now() + spinDuration + 0.1) {
+            // Calculate which section is at the top
+            let normalizedAngle = rotationDegrees.truncatingRemainder(dividingBy: 360)
+            let positiveAngle = normalizedAngle < 0 ? normalizedAngle + 360 : normalizedAngle
+            
+            // Each section covers (360 / count) degrees
+            let degreesPerSection = 360.0 / Double(sections.count)
+            
+            // The wheel rotates clockwise, so we need to use this calculation to find which section is at top
+            let sectionIndex = Int(floor(((360 - positiveAngle).truncatingRemainder(dividingBy: 360)) / degreesPerSection))
+            
+            // Make sure we have a valid index
+            let validSectionIndex = sectionIndex % sections.count
+            
+            // Set the selected section
+            selectedSection = sections[validSectionIndex]
+            
+            // Log the result
+            appModel.addLogEntry(
+                type: .wheel,
+                result: "Wheel landed on: \(sections[validSectionIndex].text)"
+            )
+            
+            isSpinning = false
+        }
+    }
+}
+
+struct WheelView: View {
+    let sections: [WheelSection]
+    let rotation: Double
+    
+    var body: some View {
+        ZStack {
+            ForEach(sections) { section in
+                SectionView(
+                    section: section,
+                    totalSections: sections.count,
+                    index: getIndex(for: section)
+                )
+            }
+        }
+        .rotationEffect(Angle(degrees: rotation))
+    }
+    
     private func getIndex(for section: WheelSection) -> Int {
         if let index = sections.firstIndex(where: { $0.id == section.id }) {
             return index
         }
         return 0
     }
+}
+
+struct SectionView: View {
+    let section: WheelSection
+    let totalSections: Int
+    let index: Int
     
-    private func spinWheel() {
-        isSpinning = true
-        selectedSection = nil
-        
-        // Random spin between 2 to 5 full rotations (720 to 1800 degrees)
-        let spinDuration = Double.random(in: 2.0...5.0)
-        let rotation = Double.random(in: 720...1800)
-        let finalAngle = rotationDegrees + rotation
-        
-        withAnimation(.easeInOut(duration: spinDuration)) {
-            rotationDegrees = finalAngle
-        }
-        
-        // When spin completes, determine the winning section
-        DispatchQueue.main.asyncAfter(deadline: .now() + spinDuration) {
-            determineSelectedSection(finalAngle: finalAngle)
-            isSpinning = false
-        }
-    }
-    
-    private func determineSelectedSection(finalAngle: Double) {
-        // Normalize the angle to 0-360
-        let normalizedAngle = finalAngle.truncatingRemainder(dividingBy: 360)
-        
-        // Convert to 0-360 range
-        let positiveAngle = normalizedAngle < 0 ? normalizedAngle + 360 : normalizedAngle
-        
-        // Calculate which section the pointer is pointing at
-        let degreesPerSection = 360.0 / Double(sections.count)
-        
-        // Calculate the section index
-        let sectionIndex = Int(positiveAngle / degreesPerSection)
-        
-        // Completely invert the result (get the opposite section)
-        // This is because the wheel selection is currently showing the opposite of what it should
-        let oppositeIndex = (sectionIndex + sections.count/2) % sections.count
-        
-        selectedSection = sections[oppositeIndex]
-        
-        print("Angle: \(positiveAngle), Raw Index: \(sectionIndex), Opposite Index: \(oppositeIndex), Selected: \(selectedSection?.text ?? "none")")
-        
-        // Log the result
-        if let selected = selectedSection {
-            appModel.addLogEntry(
-                type: .wheel,
-                result: "Wheel landed on: \(selected.text)"
+    var body: some View {
+        GeometryReader { geometry in
+            let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            let radius = min(geometry.size.width, geometry.size.height) / 2
+            let angle = (2 * .pi / Double(totalSections))
+            
+            // Start drawing sections from the top (pointing upward)
+            let startAngle = angle * Double(index) - .pi / 2
+            let endAngle = startAngle + angle
+            
+            Path { path in
+                path.move(to: center)
+                path.addArc(center: center, radius: radius, startAngle: Angle(radians: startAngle), endAngle: Angle(radians: endAngle), clockwise: false)
+                path.addLine(to: center)
+            }
+            .fill(section.color)
+            .overlay(
+                Path { path in
+                    path.move(to: center)
+                    path.addArc(center: center, radius: radius, startAngle: Angle(radians: startAngle), endAngle: Angle(radians: endAngle), clockwise: false)
+                    path.addLine(to: center)
+                }
+                .stroke(Color.white, lineWidth: 1)
             )
+            
+            // Position text in the middle of each section
+            Text(section.text)
+                .position(
+                    x: center.x + radius * 0.6 * cos(startAngle + angle/2),
+                    y: center.y + radius * 0.6 * sin(startAngle + angle/2)
+                )
+                .foregroundColor(.white)
+                .font(.system(size: 16, weight: .bold))
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(width: 60)
+                .multilineTextAlignment(.center)
         }
     }
 }
@@ -240,49 +317,6 @@ struct WheelSection: Identifiable {
     let id: Int
     let color: Color
     let text: String
-}
-
-struct WheelSectionView: View {
-    let section: WheelSection
-    let totalSections: Int
-    let index: Int
-    
-    var body: some View {
-        GeometryReader { geometry in
-            let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            let radius = min(geometry.size.width, geometry.size.height) / 2
-            let angle = (2 * .pi / Double(totalSections))
-            let startAngle = angle * Double(index)
-            let endAngle = startAngle + angle
-            
-            Path { path in
-                path.move(to: center)
-                path.addArc(center: center, radius: radius, startAngle: Angle(radians: startAngle), endAngle: Angle(radians: endAngle), clockwise: false)
-                path.addLine(to: center)
-            }
-            .fill(section.color)
-            .overlay(
-                Path { path in
-                    path.move(to: center)
-                    path.addArc(center: center, radius: radius, startAngle: Angle(radians: startAngle), endAngle: Angle(radians: endAngle), clockwise: false)
-                    path.addLine(to: center)
-                }
-                .stroke(Color.white, lineWidth: 1)
-            )
-            
-            // Section text
-            Text(section.text)
-                .position(
-                    x: center.x + radius * 0.6 * cos(startAngle + angle/2),
-                    y: center.y + radius * 0.6 * sin(startAngle + angle/2)
-                )
-                .foregroundColor(.white)
-                .font(.system(size: 16, weight: .bold))
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(width: 60)
-                .multilineTextAlignment(.center)
-        }
-    }
 }
 
 // Triangle pointer shape

@@ -1,13 +1,13 @@
 import SwiftUI
 
-enum LogType: String, CaseIterable {
+enum LogType: String, CaseIterable, Codable {
     case dice = "Dice"
     case coin = "Coin"
     case wheel = "Wheel"
     case arrow = "Arrow"
 }
 
-enum GameType: String, CaseIterable, Identifiable {
+enum GameType: String, CaseIterable, Identifiable, Codable {
     case dice = "Dice"
     case coin = "Coin"
     case wheel = "Wheel"
@@ -27,11 +27,32 @@ enum GameType: String, CaseIterable, Identifiable {
     }
 }
 
-struct LogEntry: Identifiable {
-    let id = UUID()
-    let date = Date()
+struct LogEntry: Identifiable, Codable {
+    let id: UUID
+    let date: Date
     let type: LogType
     let result: String
+    
+    init(type: LogType, result: String) {
+        self.id = UUID()
+        self.date = Date()
+        self.type = type
+        self.result = result
+    }
+    
+    // Implement CodingKeys to ensure proper UUID encoding
+    enum CodingKeys: String, CodingKey {
+        case id, date, type, result
+    }
+    
+    // Custom init from decoder to properly handle UUID
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        date = try container.decode(Date.self, forKey: .date)
+        type = try container.decode(LogType.self, forKey: .type)
+        result = try container.decode(String.self, forKey: .result)
+    }
 }
 
 class AppModel: ObservableObject {
@@ -68,9 +89,22 @@ class AppModel: ObservableObject {
     // History
     @Published var history: [LogEntry] = []
     
+    // Load history on init
+    init() {
+        loadHistory()
+    }
+    
+    // Load history from persistence service
+    func loadHistory() {
+        history = HistoryPersistenceService.shared.loadHistory()
+    }
+    
     func addLogEntry(type: LogType, result: String) {
         let entry = LogEntry(type: type, result: result)
         history.insert(entry, at: 0)
+        
+        // Also save to persistence service
+        HistoryPersistenceService.shared.addEntry(entry)
     }
     
     // Filter history by type
@@ -98,5 +132,11 @@ class AppModel: ObservableObject {
     // Get array of visible games for TabView
     func getVisibleGames() -> [GameType] {
         return GameType.allCases.filter { visibleGames.contains($0) }
+    }
+    
+    // Clear all history
+    func clearHistory() {
+        history.removeAll()
+        HistoryPersistenceService.shared.clearHistory()
     }
 } 
