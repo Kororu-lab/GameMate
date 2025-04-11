@@ -2,7 +2,11 @@ import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject private var appModel: AppModel
-    @State private var selectedFilter: LogType? = nil
+    @State private var selectedFilter: LogType?
+    
+    init(selectedFilter: LogType? = nil) {
+        _selectedFilter = State(initialValue: selectedFilter)
+    }
     
     private var filteredHistory: [LogEntry] {
         if let selectedType = selectedFilter {

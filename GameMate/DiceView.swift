@@ -20,8 +20,17 @@ struct DiceView: View {
                 Spacer()
                 Stepper("", value: $appModel.diceCount, in: 1...6, step: 1)
                     .onChange(of: appModel.diceCount) { _, newValue in
-                        updateDiceArrays(count: newValue)
+                        // Only update if not currently rolling
+                        if !isRolling {
+                            updateDiceArrays(count: newValue)
+                        } else {
+                            // If rolling, revert to previous count
+                            DispatchQueue.main.async {
+                                appModel.diceCount = diceValues.count
+                            }
+                        }
                     }
+                    .disabled(isRolling)
             }
             .padding(.horizontal)
             
@@ -91,6 +100,13 @@ struct DiceView: View {
             }
             .disabled(isRolling)
             .padding()
+            
+            NavigationLink(destination: HistoryView(selectedFilter: .dice)) {
+                Text("View History")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+            .padding(.bottom)
         }
         .onAppear {
             updateDiceArrays(count: appModel.diceCount)

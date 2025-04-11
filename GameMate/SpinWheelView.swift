@@ -100,7 +100,14 @@ struct SpinWheelView: View {
                     .cornerRadius(8)
             }
             .disabled(isSpinning)
-            .padding(.bottom, 40)
+            .padding(.bottom, 10)
+            
+            NavigationLink(destination: HistoryView(selectedFilter: .wheel)) {
+                Text("View History")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+            .padding(.bottom, 20)
         }
         .onAppear {
             updateSections()
@@ -168,9 +175,15 @@ struct SpinWheelView: View {
         
         // Calculate which section the pointer is pointing at
         let degreesPerSection = 360.0 / Double(sections.count)
-        let sectionIndex = Int((positiveAngle / degreesPerSection).rounded()) % sections.count
         
-        selectedSection = sections[sectionIndex]
+        // Calculate section index directly by dividing the angle
+        // The pointer is at the top (0 degrees), so we need to adjust
+        let adjustedAngle = (positiveAngle + degreesPerSection / 2).truncatingRemainder(dividingBy: 360)
+        let sectionIndex = Int(adjustedAngle / degreesPerSection)
+        
+        // Ensure the index is valid
+        let validIndex = min(max(0, sectionIndex), sections.count - 1)
+        selectedSection = sections[validIndex]
         
         // Log the result
         if let selected = selectedSection {

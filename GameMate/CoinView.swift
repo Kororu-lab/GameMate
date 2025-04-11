@@ -22,8 +22,17 @@ struct CoinView: View {
                 Spacer()
                 Stepper("", value: $coinCount, in: 1...6, step: 1)
                     .onChange(of: coinCount) { _, newValue in
-                        updateCoinArrays(count: newValue)
+                        // Only update if not currently tossing
+                        if !isTossing {
+                            updateCoinArrays(count: newValue)
+                        } else {
+                            // If tossing, revert to previous count
+                            DispatchQueue.main.async {
+                                coinCount = coinResults.count
+                            }
+                        }
                     }
+                    .disabled(isTossing)
             }
             .padding(.horizontal)
             
@@ -101,6 +110,13 @@ struct CoinView: View {
             }
             .disabled(isTossing)
             .padding()
+            
+            NavigationLink(destination: HistoryView(selectedFilter: .coin)) {
+                Text("View History")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+            .padding(.bottom)
         }
         .onAppear {
             updateCoinArrays(count: coinCount)
