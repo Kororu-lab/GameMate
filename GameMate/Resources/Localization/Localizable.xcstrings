@@ -381,14 +381,7 @@
       }
     },
     "Choose which games appear in the tab bar" : {
-      "extractionState" : "stale",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wählen Sie, welche Spiele in der Tab-Leiste angezeigt werden"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",

@@ -224,7 +224,7 @@ struct CoinView: View {
                 // Log the result
                 let headsCount = newResults.filter { $0 }.count
                 let tailsCount = newResults.count - headsCount
-                appModel.addLogEntry(type: .coin, result: "Tossed \(newResults.count) coins: \(headsCount) Heads, \(tailsCount) Tails")
+                appModel.addLogEntry(type: .coin, result: String(format: "Tossed %@ coins: %@ Heads, %@ Tails".localized, String(newResults.count), String(headsCount), String(tailsCount)))
                 
                 isTossing = false
             }

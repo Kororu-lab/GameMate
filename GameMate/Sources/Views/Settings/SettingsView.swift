@@ -52,7 +52,7 @@ struct GameSelectionView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Select Games (max \(appModel.maxVisibleGames))".localized)
+            Text(String(format: "Select Games (max %@)".localized, String(appModel.maxVisibleGames)))
                 .font(.headline)
             
             Text("Choose which games appear in the tab bar".localized)
