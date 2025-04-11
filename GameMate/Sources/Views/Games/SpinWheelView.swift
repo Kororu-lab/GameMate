@@ -98,9 +98,9 @@ struct SpinWheelView: View {
             
             if showDebugInfo {
                 HStack {
-                    Text(String(format: "Current angle: %@°", String(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))))
+                    Text(String(format: "Current angle: %@°".localized, String(Int(rotationDegrees.truncatingRemainder(dividingBy: 360)))))
                     Spacer()
-                    Text(String(format: "Section count: %@", String(sections.count)))
+                    Text(String(format: "Section count: %@".localized, String(sections.count)))
                 }
                 .font(.caption)
                 .padding(.horizontal)
