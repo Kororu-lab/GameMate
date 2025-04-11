@@ -94,9 +94,14 @@ class AppModel: ObservableObject {
     // History
     @Published var history: [LogEntry] = []
     
+    // Add gameOrder property to store custom order
+    @Published var gameOrder: [GameType] = GameType.allCases.sorted { $0.rawValue < $1.rawValue }
+    
     // Load history on init
     init() {
         loadHistory()
+        loadGameOrder()
+        loadVisibleGames()
         initializeLadderItems()
     }
     
@@ -104,6 +109,26 @@ class AppModel: ObservableObject {
     private func initializeLadderItems() {
         ladderPlayers = ["Player 1".localized, "Player 2".localized]
         ladderDestinations = ["Prize 1".localized, "Prize 2".localized]
+    }
+    
+    // Load game order from UserDefaults
+    private func loadGameOrder() {
+        if let savedOrder = UserDefaults.standard.stringArray(forKey: "GameOrder") {
+            // Convert the saved string array back to GameType array
+            let decodedOrder = savedOrder.compactMap { GameType(rawValue: $0) }
+            
+            // Only use the saved order if it contains all game types
+            if decodedOrder.count == GameType.allCases.count {
+                gameOrder = decodedOrder
+            }
+        }
+    }
+    
+    // Save game order to UserDefaults
+    private func saveGameOrder() {
+        // Convert GameType array to string array for storage
+        let orderToSave = gameOrder.map { $0.rawValue }
+        UserDefaults.standard.set(orderToSave, forKey: "GameOrder")
     }
     
     // Load history from persistence service
@@ -132,7 +157,8 @@ class AppModel: ObservableObject {
     
     // Get visible games as an array
     func getVisibleGames() -> [GameType] {
-        return Array(visibleGames).sorted { $0.rawValue < $1.rawValue }
+        // Use the custom order, filtering only visible games
+        return gameOrder.filter { visibleGames.contains($0) }
     }
     
     // Check if a game is visible
@@ -153,6 +179,49 @@ class AppModel: ObservableObject {
                 visibleGames.insert(game)
             }
         }
+        
+        // Store the updated configuration
+        saveVisibleGames()
+        
+        // Force refresh UI since TabView doesn't automatically update
+        // Add userInfo to indicate this came from settings
+        NotificationCenter.default.post(
+            name: NSNotification.Name("GameOrderChanged"),
+            object: nil,
+            userInfo: ["source": "settings"]
+        )
+    }
+    
+    // Save visible games to UserDefaults
+    private func saveVisibleGames() {
+        let visibleGameStrings = visibleGames.map { $0.rawValue }
+        UserDefaults.standard.set(visibleGameStrings, forKey: "VisibleGames")
+    }
+    
+    // Load visible games from UserDefaults
+    private func loadVisibleGames() {
+        if let savedGames = UserDefaults.standard.stringArray(forKey: "VisibleGames") {
+            let decodedGames = Set(savedGames.compactMap { GameType(rawValue: $0) })
+            
+            // Only use saved games if we have at least one
+            if !decodedGames.isEmpty {
+                visibleGames = decodedGames
+            }
+        }
+    }
+    
+    // Update game order when moved
+    func updateGameOrder(from source: IndexSet, to destination: Int) {
+        gameOrder.move(fromOffsets: source, toOffset: destination)
+        saveGameOrder()
+        
+        // Force refresh UI since TabView doesn't automatically update
+        // Add userInfo to indicate this came from settings
+        NotificationCenter.default.post(
+            name: NSNotification.Name("GameOrderChanged"),
+            object: nil,
+            userInfo: ["source": "settings"]
+        )
     }
     
     // Clear all history

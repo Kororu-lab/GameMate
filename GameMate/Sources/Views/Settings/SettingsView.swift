@@ -59,24 +59,42 @@ struct GameSelectionView: View {
                 .font(.subheadline)
                 .foregroundColor(.gray)
             
+            // Single list that handles both selection and order
             List {
-                ForEach(GameType.allCases) { game in
+                ForEach(appModel.gameOrder, id: \.self) { game in
                     HStack {
+                        // Game icon
                         Image(systemName: game.systemImage)
                             .foregroundColor(gameColor(for: game))
                         
+                        // Game name
                         Text(game.rawValue.localized)
                         
                         Spacer()
                         
+                        // Drag handle
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 8)
+                        
+                        // Selection toggle
                         Toggle("", isOn: Binding(
                             get: { appModel.isGameVisible(game) },
                             set: { _ in toggleGame(game) }
                         ))
                     }
                 }
+                .onMove { indices, destination in
+                    appModel.updateGameOrder(from: indices, to: destination)
+                }
             }
-            .frame(height: 250)
+            .frame(height: 300)
+            .environment(\.editMode, .constant(.active))
+            
+            Text("Drag to reorder games in the tab bar".localized)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .padding(.top, 4)
         }
     }
     
