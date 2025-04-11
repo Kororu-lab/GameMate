@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct GameMateApp: App {
+    // Register the app delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    
     @StateObject private var appModel = AppModel()
     @StateObject private var localeManager = LocaleManager.shared
     @State private var refreshView = UUID()
@@ -55,6 +58,10 @@ struct GameMateApp: App {
                             }
                         }
                 }
+            }
+            .onAppear {
+                // Lock orientation on app start
+                OrientationManager.shared.lockOrientation()
             }
         }
     }
