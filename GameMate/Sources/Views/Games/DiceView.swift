@@ -52,6 +52,7 @@ struct DiceView: View {
                     }
                 } else {
                     VStack(spacing: 20) {
+                        // First row: Always show up to 3 dice
                         HStack(spacing: 20) {
                             ForEach(0..<min(3, diceValues.count), id: \.self) { index in
                                 DiceView2D(
@@ -65,16 +66,19 @@ struct DiceView: View {
                             }
                         }
                         
-                        HStack(spacing: 20) {
-                            ForEach(3..<diceValues.count, id: \.self) { index in
-                                DiceView2D(
-                                    value: diceValues[index],
-                                    color: appModel.useSameColorForDice ? appModel.diceColor : appModel.diceColors[min(index, appModel.diceColors.count - 1)],
-                                    rotationAngle: rotationAngles[index],
-                                    scale: scales[index],
-                                    offset: offsets[index]
-                                )
-                                .frame(width: 100, height: 100)
+                        // Second row: Only show if there are more than 3 dice
+                        if diceValues.count > 3 {
+                            HStack(spacing: 20) {
+                                ForEach(Array(diceValues[3...].enumerated()), id: \.offset) { index, _ in
+                                    DiceView2D(
+                                        value: diceValues[index + 3],
+                                        color: appModel.useSameColorForDice ? appModel.diceColor : appModel.diceColors[min(index + 3, appModel.diceColors.count - 1)],
+                                        rotationAngle: rotationAngles[index + 3],
+                                        scale: scales[index + 3],
+                                        offset: offsets[index + 3]
+                                    )
+                                    .frame(width: 100, height: 100)
+                                }
                             }
                         }
                     }
