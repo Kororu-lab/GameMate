@@ -8,7 +8,7 @@
 ![Platform](https://img.shields.io/badge/platform-iOS%2015.0+-lightgrey?logo=apple)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-compatible-orange?logo=swift)
 ![LLM](https://img.shields.io/badge/LLM--Developed-100%25-purple)
-![License](https://img.shields.io/badge/License-MIT-brightgreen)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
 
 ---
 
@@ -200,7 +200,7 @@ Contributions are welcome! If you'd like to improve GameMate:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 The MIT license is commonly used for open-source iOS projects as it provides freedom for others to use, modify, and distribute the software while maintaining minimal restrictions.
 
