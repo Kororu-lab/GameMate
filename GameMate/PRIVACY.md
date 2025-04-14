@@ -30,7 +30,7 @@ We may update this privacy policy from time to time. We will notify users of any
 
 ## Contact Us
 If you have any questions about this Privacy Policy, please contact us at:
-[Your contact email or website]
+chch0926@gmail.com
 
 ## Your Rights
 Since we don't collect any personal data, there is no personal information to access, modify, or delete. All app preferences can be reset directly within the app or by deleting and reinstalling the app. 
