@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct LanguageSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     @ObservedObject private var localeManager = LocaleManager.shared
     @State private var refreshToggle = false  // Used to force view refresh
     
@@ -9,50 +8,42 @@ struct LanguageSettingsView: View {
     private let languageCodes = LocalizationService.shared.availableLanguages()
     
     var body: some View {
-        NavigationStack {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Select Language".localized)
+                .font(.headline)
+            
+            Text("Choose your preferred language".localized)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
             List {
                 ForEach(languageCodes, id: \.self) { code in
-                    Button {
-                        // Update the language through LocaleManager
-                        print("Button pressed for language: \(code)")
+                    HStack {
+                        // Get language name in its own language
+                        Text(localizationService.languageName(for: code))
+                            .foregroundStyle(Color.primary)
                         
-                        // Update the language
-                        localeManager.setAppLanguage(to: code)
+                        Spacer()
                         
-                        // Toggle state to force refresh
-                        refreshToggle.toggle()
-                    } label: {
-                        HStack {
-                            // Get language name in its own language (when possible)
-                            Text(localizationService.languageName(for: code))
-                                .foregroundStyle(Color.primary)
-                            
-                            Spacer()
-                            
-                            // Show checkmark for current language
-                            if localeManager.appLanguage == code {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
-                            }
+                        // Show checkmark for current language
+                        if localeManager.appLanguage == code {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(Color.accentColor)
                         }
-                        .contentShape(Rectangle())
                     }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            .navigationTitle("Language".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Done".localized)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        // Update the language through LocaleManager
+                        print("Language selected: \(code)")
+                        localeManager.setAppLanguage(to: code)
+                        refreshToggle.toggle()
                     }
                 }
             }
+            .frame(height: 300)
             .id(refreshToggle) // Force view to redraw when this changes
         }
+        .padding()
         .id(localeManager.currentLanguage) // Force view refresh when language changes
         .environment(\.locale, localeManager.appLocale)
         .onAppear {
