@@ -1,6 +1,6 @@
 # Privacy Policy for GameMate
 
-*Last updated: March 2024*
+*Last updated: April 2025*
 
 ## Overview
 GameMate is committed to protecting your privacy. This privacy policy explains how our app handles information.
