@@ -29,9 +29,22 @@
 		0B6F3F092DA93FDB0043A4ED /* GameMateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GameMateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0BD113E32DAED3B200ED54C7 /* Exceptions for "GameMate" folder in "GameMate" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B6F3EF12DA93FDA0043A4ED /* GameMate */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B6F3EF42DA93FDA0043A4ED /* GameMate */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0BD113E32DAED3B200ED54C7 /* Exceptions for "GameMate" folder in "GameMate" target */,
+			);
 			path = GameMate;
 			sourceTree = "<group>";
 		};

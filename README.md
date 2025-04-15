@@ -7,7 +7,6 @@
 ![Version](https://img.shields.io/badge/version-v1.0.0-blue)
 ![Platform](https://img.shields.io/badge/platform-iOS%2015.0+-lightgrey?logo=apple)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-compatible-orange?logo=swift)
-![LLM](https://img.shields.io/badge/LLM--Developed-100%25-purple)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
 
 ---
@@ -44,36 +43,6 @@
 - **✨ Splash Screen**  
   Beautiful splash screen with app icon animation.
 
-## 🤖 Built Entirely With LLM
-
-GameMate represents a breakthrough in app development - **an iOS app created 100% through natural language prompting** rather than traditional coding.
-
-### Zero-Code Development:
-
-This entire application was built by describing features, functionality, design preferences, and user interactions to a Large Language Model (LLM). No manual coding was performed - every line of Swift code was generated through natural language conversations...even this README! <- this is my only typed single sentence
-
-### How It Was Built:
-
-```
-"Create a dice roller with physics-based animations"
-"Make the coins flip with realistic 3D rotations"
-"Design a wheel spinner with customizable segments"
-"I need a ladder game that shows animated paths"
-"Add a history tracking feature for all games"
-"Update the UI to use a cleaner design with minimal borders"
-```
-
-By iteratively refining these prompts and providing feedback on the generated code, the entire app came to life without writing a single line of programming language code manually.
-
-### Development Benefits:
-
-- **Accessibility**: Created by a developer with no prior iOS development experience
-- **Efficiency**: Significantly faster development cycle than traditional coding
-- **Flexibility**: Easy iterations and modifications through simple conversation
-- **Quality**: Professional-grade animations and features without specialized knowledge
-
-This approach demonstrates how LLMs are revolutionizing software development, making it accessible to those without traditional programming expertise.
-
 ## 📱 Screenshots
 
 Each game in GameMate features beautiful animations and a clean, intuitive interface:
@@ -98,7 +67,6 @@ Each game in GameMate features beautiful animations and a clean, intuitive inter
 - **🎡 Spin Wheel**: Customizable segments for random decision making
 - **↗️ Arrow Spinner**: Simple spinner with smooth rotation animations
 - **🪜 Ladder Game**: Connect players to destinations with animated paths
-- ...and more? Will be updated
 
 ## 🧰 Project Structure
 
@@ -206,4 +174,4 @@ The MIT license is commonly used for open-source iOS projects as it provides fre
 
 ---
 
-Made with ❤️ using SwiftUI and the power of LLM-driven development
+Made with ❤️ using SwiftUI
